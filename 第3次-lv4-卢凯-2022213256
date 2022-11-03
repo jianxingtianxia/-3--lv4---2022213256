@@ -1,0 +1,25 @@
+package main
+
+import (
+	"fmt"
+	"sync"
+)
+
+var wg sync.WaitGroup
+
+func main() {
+	wg.Add(10)
+	over := make(chan bool, 1) //由于是发送值，所以必须建立一个缓冲区通道存放
+	for i := 0; i < 10; i++ {
+		go func(i int) { //原来的题目中的该函数形成了一个闭包，i变量不是内部变量，无法及时传入,直接把i传递到函数中即可
+			fmt.Println(i)
+			wg.Done()
+		}(i)
+		if i == 9 {
+			over <- true
+		}
+	}
+	wg.Wait() //加上waitgroup必须让每个go运行完主协程才能结束
+	<-over
+	fmt.Println("over!!!")
+}
